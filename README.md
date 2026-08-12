@@ -1,38 +1,72 @@
 # React Modern Drag and Drop
 
-A dual-pane file explorer built around [dnd-kit](https://dndkit.com): drag rows to reorder them,
-drop them onto folders or breadcrumbs to move them, and do all of it with the keyboard alone.
+> Dual-pane file explorer with accessible drag & drop — built as a portfolio piece that shows how I think about hard UI problems, not just how I render them.
 
-React 19 · TypeScript (strict) · Vite 8 · Tailwind CSS 4 · Zustand · Vitest · Playwright
+**React 19 · TypeScript (strict) · Vite 8 · Tailwind CSS 4 · dnd-kit · Zustand · Vitest · Playwright**
 
 ![Two panes side by side, the right one opened inside a nested folder, with two rows selected in the left](docs/screenshot.png)
 
-## Why this project
+---
 
-Drag and drop is easy to demo and hard to get right. The interesting problems are not the
-animations, they are the rules underneath:
+## Author
+
+### Alghisi Alessandro Paolo
+
+Senior Software Engineer · Cluj-Napoca, Romania
+
+**Twice a Google Software Engineering Intern** — Chrome (Kitchener / Waterloo) and Logs (Mountain View). At Chrome I shipped pinch-to-zoom for the PDF plugin into Chromium ([codereview.chromium.org/1881603002](https://codereview.chromium.org/1881603002)). At Logs I built an automated release-safety system for Big Data policy validation in C++ and Python, wired into Google’s release pipeline.
+
+I have **8+ years** building production web platforms used by millions of people — including large real-estate products such as **Bayut.com** and **Zameen.com** at Sector Labs — plus roles at **Hewlett Packard Enterprise** (LoadRunner / C++), **Complaion** (React + FastAPI, cloud file integrations, LLM-assisted compliance workflows), and currently **Raw Geeks** (senior frontend: React, Angular, TypeScript).
+
+Also: Bronze medalist at the **National Olympiad in Informatics** (2013 & 2014), BSc Computer Science (Babeș-Bolyai University), Master’s in Software Engineering (Technical University of Cluj-Napoca). Fluent in **English, Italian, Romanian**.
+
+| | |
+| --- | --- |
+| GitHub | [github.com/alexalghisi](https://github.com/alexalghisi) |
+| LinkedIn | [linkedin.com/in/alghisi](https://www.linkedin.com/in/alghisi) |
+| Location | Cluj-Napoca, Romania · open to remote / EU / US-friendly timezones |
+
+**Hiring?** If you need a senior engineer who can own a React/TypeScript surface end-to-end, reason about edge cases, write tests that catch real bugs, and ship with CI — open an issue here, message me on LinkedIn, or email from my LinkedIn profile. I am actively open to strong full-time and contract opportunities.
+
+---
+
+## Why this project exists
+
+GitHub is where I show how I code. This repo is a deliberate sample of that:
+
+Drag and drop is easy to demo and hard to get right. The interesting problems are not the animations — they are the rules underneath:
 
 - A folder must never be moved into its own subtree, at any depth.
-- Dragging a selection of 12 rows that includes both a folder and one of its children must move
-  that folder once, not twice.
+- Dragging a selection of 12 rows that includes both a folder and one of its children must move that folder once, not twice.
 - Deleting a folder has to take its whole subtree with it.
 - Every gesture must have a keyboard equivalent, because a pointer-only interface excludes people.
 
-All of that logic lives in pure functions in [`src/lib/tree.ts`](src/lib/tree.ts), which is why it
-can be tested exhaustively without rendering a single component.
+All of that logic lives in pure functions in [`src/lib/tree.ts`](src/lib/tree.ts), so it can be tested exhaustively without rendering a single component. The UI is a thin, typed adapter over that core.
+
+That is the same mindset I used at Google Chrome and on high-traffic product surfaces: isolate the hard rules, make illegal states unrepresentable, then prove them with tests.
 
 ## Features
 
-| Feature                  | Notes                                                                      |
-| ------------------------ | -------------------------------------------------------------------------- |
-| Reorder within a folder  | Pointer or keyboard, with a live insertion indicator                       |
-| Move into a folder       | Drop onto a folder row, a breadcrumb, or an empty pane                     |
-| Multi-select drag        | Shift for ranges, Cmd/Ctrl to toggle; the whole selection travels together |
-| Cycle protection         | Illegal destinations are rejected, and never offered in the move dialog    |
-| Dual panes               | Resizable, independently navigable, drag between them                      |
-| Keyboard support         | Space to lift, arrows to move, Space to drop, Escape to cancel             |
-| Screen reader support    | Live announcements for lift, hover, drop and cancel                        |
-| Create / rename / delete | Validated with React Hook Form and Zod                                     |
+| Feature | Notes |
+| --- | --- |
+| Reorder within a folder | Pointer or keyboard, with a live insertion indicator |
+| Move into a folder | Drop onto a folder row, a breadcrumb, or an empty pane |
+| Multi-select drag | Shift for ranges, Cmd/Ctrl to toggle; the whole selection travels together |
+| Cycle protection | Illegal destinations are rejected, and never offered in the move dialog |
+| Dual panes | Resizable, independently navigable, drag between them |
+| Keyboard support | Space to lift, arrows to move, Space to drop, Escape to cancel |
+| Screen reader support | Live announcements for lift, hover, drop and cancel |
+| Create / rename / delete | Validated with React Hook Form and Zod |
+
+## What this demonstrates to a hiring manager
+
+| Signal | Where to look |
+| --- | --- |
+| TypeScript strict, real domain modeling | [`src/types.ts`](src/types.ts), [`src/lib/tree.ts`](src/lib/tree.ts), `DialogState` / `DropData` unions |
+| Production UI craft (a11y, DnD, layout) | [`src/components/FileExplorer/`](src/components/FileExplorer/) |
+| State design without prop-drilling hell | [`src/store/explorerStore.ts`](src/store/explorerStore.ts) |
+| Tests that cover behavior, not just happy paths | 58 Vitest tests · 6 Playwright e2e specs |
+| Ship discipline | GitHub Actions CI: typecheck, lint, format, unit, build, e2e |
 
 ## Getting started
 
@@ -132,4 +166,4 @@ drag has to wait for its effect to land instead of firing three keys back to bac
 
 ## License
 
-MIT
+MIT · © Alghisi Alessandro Paolo
