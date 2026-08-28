@@ -1,9 +1,10 @@
 import { Toaster } from "sonner";
+import { AuthorCredit } from "@/components/AuthorCredit";
 import { FileExplorer } from "@/components/FileExplorer";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-desktop p-4 md:p-10">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-desktop p-4 md:p-10">
       <Toaster richColors position="bottom-right" />
       <div
         data-testid="finder-window"
@@ -11,6 +12,7 @@ export default function App() {
       >
         <FileExplorer />
       </div>
+      <AuthorCredit />
     </div>
   );
 }
