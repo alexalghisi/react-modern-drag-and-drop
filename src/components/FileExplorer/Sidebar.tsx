@@ -20,7 +20,7 @@ export function Sidebar({ paneId }: SidebarProps) {
   return (
     <nav
       aria-label="Favorites"
-      className="flex w-[168px] shrink-0 flex-col border-r border-black/5 bg-sidebar px-2 py-3"
+      className="flex w-[168px] shrink-0 flex-col border-r border-black/5 bg-sidebar/90 px-2 py-3 backdrop-blur-md"
     >
       <p className="px-2 pb-1.5 text-[11px] font-semibold tracking-wide text-muted-foreground/80">
         Favorites

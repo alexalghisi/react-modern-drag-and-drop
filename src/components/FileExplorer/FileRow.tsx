@@ -84,8 +84,8 @@ export function FileRow({
   return (
     <div
       className={cn(
-        "group relative grid select-none cursor-pointer grid-cols-12 items-center gap-3 rounded-md border border-transparent px-3 py-1.5 transition-colors hover:bg-secondary/80",
-        isSelected && "bg-primary/10",
+        "group relative grid cursor-pointer select-none grid-cols-12 items-center gap-3 rounded-md border border-transparent px-3 py-1.5 transition-colors hover:bg-secondary/80",
+        isSelected && "bg-[#0064D2] text-white hover:bg-[#0064D2]",
         isDropTarget && "bg-primary/10 ring-1 ring-primary/40",
         isDragging && "opacity-40",
       )}
@@ -115,7 +115,7 @@ export function FileRow({
           aria-pressed={isSelected}
         >
           {isSelected ? (
-            <Check className="h-3.5 w-3.5 text-primary" />
+            <Check className="h-3.5 w-3.5 text-white" />
           ) : (
             <Square className="h-3.5 w-3.5 text-muted-foreground/50" />
           )}
@@ -127,7 +127,10 @@ export function FileRow({
         <span className="truncate text-[13px]">{node.name}</span>
         {isRequired && (
           <span
-            className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800"
+            className={cn(
+              "inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+              isSelected ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800",
+            )}
             title="Required files cannot be deleted or moved out of this folder"
           >
             <Lock className="h-2.5 w-2.5" />
@@ -136,11 +139,21 @@ export function FileRow({
         )}
       </div>
 
-      <div className="col-span-2 hidden truncate text-[12px] text-muted-foreground md:block">
+      <div
+        className={cn(
+          "col-span-2 hidden truncate text-[12px] md:block",
+          isSelected ? "text-white/80" : "text-muted-foreground",
+        )}
+      >
         {node.updatedAt}
       </div>
 
-      <div className="col-span-2 hidden text-[12px] text-muted-foreground tabular-nums md:block">
+      <div
+        className={cn(
+          "col-span-2 hidden text-[12px] tabular-nums md:block",
+          isSelected ? "text-white/80" : "text-muted-foreground",
+        )}
+      >
         {node.size ?? "--"}
       </div>
 
@@ -153,7 +166,10 @@ export function FileRow({
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+              className={cn(
+                "h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100",
+                isSelected && "text-white hover:bg-white/15",
+              )}
               aria-label={`Actions for ${node.name}`}
             >
               <MoreVertical className="h-4 w-4" />

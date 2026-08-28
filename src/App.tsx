@@ -7,7 +7,7 @@ export default function App() {
       <Toaster richColors position="bottom-right" />
       <div
         data-testid="finder-window"
-        className="flex h-[min(780px,85vh)] w-full max-w-6xl flex-col overflow-hidden rounded-[12px] border border-black/10 bg-card shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+        className="flex h-[min(780px,85vh)] w-full max-w-6xl flex-col overflow-hidden rounded-[12px] border border-black/10 bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_24px_80px_rgba(0,0,0,0.28)]"
       >
         <FileExplorer />
       </div>

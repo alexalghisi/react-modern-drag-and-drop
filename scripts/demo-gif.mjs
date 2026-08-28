@@ -9,6 +9,37 @@ const { GIFEncoder, applyPalette, quantize } = gifenc;
 const { PNG } = pngjs;
 
 const DELAY_MS = 90;
+const POINTER_SVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.2 2.8 20 14.2l-7.1.4 3.4 7.2-3.2 1.5-3.4-7.3-4.7 4.3z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+
+async function installPointer(page) {
+  await page.evaluate((svg) => {
+    const existing = document.getElementById("demo-pointer");
+    if (existing !== null) existing.remove();
+
+    const pointer = document.createElement("div");
+    pointer.id = "demo-pointer";
+    pointer.setAttribute("aria-hidden", "true");
+    pointer.innerHTML = svg;
+    Object.assign(pointer.style, {
+      position: "fixed",
+      left: "0px",
+      top: "0px",
+      zIndex: "2147483647",
+      pointerEvents: "none",
+      filter: "drop-shadow(0 1px 1px rgba(0,0,0,.45))",
+    });
+    document.body.appendChild(pointer);
+
+    window.addEventListener(
+      "mousemove",
+      (event) => {
+        pointer.style.left = `${String(event.clientX)}px`;
+        pointer.style.top = `${String(event.clientY)}px`;
+      },
+      { passive: true },
+    );
+  }, POINTER_SVG);
+}
 
 async function screenshotWindow(page) {
   return page.getByTestId("finder-window").screenshot({ type: "png" });
@@ -33,6 +64,7 @@ async function dragOnto(page, frames, source, target) {
   const direction = initialTarget.y >= from.y ? 1 : -1;
 
   await page.mouse.move(startX, startY);
+  frames.push(await screenshotWindow(page));
   await page.mouse.down();
   await page.mouse.move(startX, startY + direction * 12, { steps: 4 });
   frames.push(await screenshotWindow(page));
@@ -42,7 +74,7 @@ async function dragOnto(page, frames, source, target) {
 
   const endX = to.x + to.width / 2;
   const endY = to.y + to.height / 2;
-  const steps = 22;
+  const steps = 26;
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
@@ -67,7 +99,7 @@ function encodeGif(pngBuffers) {
     const indexed = applyPalette(rgba, palette);
     gif.writeFrame(indexed, png.width, png.height, {
       palette,
-      delay: index === 0 ? 800 : DELAY_MS,
+      delay: index === 0 ? 900 : DELAY_MS,
       repeat: 0,
     });
   }
@@ -84,7 +116,9 @@ const page = await browser.newPage({
 
 await page.goto("http://localhost:5173/");
 await page.getByTestId("row-file-7").waitFor();
+await installPointer(page);
 await page.evaluate(() => document.fonts.ready);
+await page.mouse.move(640, 320);
 await page.waitForTimeout(250);
 
 const frames = [];
@@ -112,7 +146,7 @@ await dragOnto(
   panes.nth(0).getByTestId("row-file-7"),
   panes.nth(0).getByTestId("row-folder-1"),
 );
-await hold(page, frames, 4);
+await hold(page, frames, 5);
 
 await dragOnto(
   page,

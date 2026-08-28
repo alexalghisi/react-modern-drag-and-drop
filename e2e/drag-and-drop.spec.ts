@@ -149,3 +149,10 @@ test("keeps a required file in its folder", async ({ page }) => {
   await expect(page.getByTestId("row-file-7")).toBeVisible();
   await expect(page.getByTestId("row-file-7")).toHaveAttribute("data-mandatory", "true");
 });
+
+test("refuses to delete a required file from the keyboard", async ({ page }) => {
+  await page.getByTestId("row-file-7").click();
+  await page.keyboard.press("Backspace");
+
+  await expect(page.getByTestId("row-file-7")).toBeVisible();
+});
