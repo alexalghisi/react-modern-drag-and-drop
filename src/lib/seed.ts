@@ -27,6 +27,7 @@ export const SEED_NODES: FileNode[] = [
     order: 3,
     size: "12 KB",
     updatedAt: "Oct 31, 2023",
+    mandatory: true,
   },
   {
     id: "13",
@@ -74,6 +75,7 @@ export const SEED_NODES: FileNode[] = [
     order: 3,
     size: "1.2 MB",
     updatedAt: "Nov 5, 2023",
+    mandatory: true,
   },
 
   {

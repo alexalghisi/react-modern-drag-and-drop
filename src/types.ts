@@ -10,6 +10,11 @@ export interface FileNode {
   order: number;
   size?: string;
   updatedAt: string;
+  /**
+   * Required files cannot be deleted, and cannot leave their parent folder.
+   * Reordering among siblings is still allowed.
+   */
+  mandatory?: boolean;
 }
 
 /** One independently navigable column of the explorer. */

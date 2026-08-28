@@ -4,11 +4,12 @@ import {
   ArrowUp,
   Check,
   ChevronRight,
-  File as FileIcon,
-  Folder,
   FolderInput,
+  Lock,
   MoreVertical,
   Pencil,
+  Shield,
+  ShieldOff,
   Square,
   Trash2,
 } from "lucide-react";
@@ -20,7 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { NodeIcon } from "./NodeIcon";
 import { cn } from "@/lib/utils";
+import { isMandatoryFile, subtreeHasMandatory } from "@/lib/tree";
 import { useExplorerStore } from "@/store/explorerStore";
 import type { FileNode } from "@/types";
 
@@ -45,6 +48,7 @@ export function FileRow({
   isDropTarget = false,
   isReorderTarget = false,
 }: FileRowProps) {
+  const nodes = useExplorerStore((state) => state.nodes);
   const selectedIds = useExplorerStore((state) => state.selectedIds);
   const selectRow = useExplorerStore((state) => state.selectRow);
   const openFolder = useExplorerStore((state) => state.openFolder);
@@ -52,8 +56,11 @@ export function FileRow({
   const deleteNodes = useExplorerStore((state) => state.deleteNodes);
   const reorder = useExplorerStore((state) => state.reorder);
   const effectiveIds = useExplorerStore((state) => state.effectiveIds);
+  const setMandatory = useExplorerStore((state) => state.setMandatory);
 
   const isSelected = selectedIds.has(node.id);
+  const isRequired = isMandatoryFile(node);
+  const cannotDelete = subtreeHasMandatory(nodes, [node.id]);
   const multiCount = isSelected && selectedIds.size > 1 ? selectedIds.size : 0;
   const suffix = multiCount > 0 ? ` (${String(multiCount)})` : "";
 
@@ -77,21 +84,25 @@ export function FileRow({
   return (
     <div
       className={cn(
-        // Column spans must total 12 at every breakpoint, otherwise the last
-        // cell wraps onto a second line and doubles the row height.
-        // select-none stops the pointer gesture from selecting row text.
-        "group relative grid select-none cursor-pointer grid-cols-12 items-center gap-4 rounded-xl border border-transparent px-4 py-3 transition-colors hover:bg-secondary/60",
-        isSelected && "bg-primary/10 ring-1 ring-primary/20",
-        isDropTarget && "border-primary bg-primary/5 ring-1 ring-primary/20",
-        isReorderTarget && "ring-2 ring-inset ring-primary",
+        "group relative grid select-none cursor-pointer grid-cols-12 items-center gap-3 rounded-md border border-transparent px-3 py-1.5 transition-colors hover:bg-secondary/80",
+        isSelected && "bg-primary/10",
+        isDropTarget && "bg-primary/10 ring-1 ring-primary/40",
         isDragging && "opacity-40",
       )}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       data-testid={`row-${node.type}-${node.id}`}
       data-row
+      data-mandatory={isRequired ? "true" : undefined}
+      data-reorder-target={isReorderTarget ? "true" : undefined}
       {...dragHandleProps}
     >
+      {isReorderTarget && (
+        <div
+          className="absolute -top-px right-3 left-3 h-0.5 rounded-full bg-primary"
+          aria-hidden
+        />
+      )}
       <div className="col-span-1 flex items-center">
         <button
           type="button"
@@ -99,43 +110,37 @@ export function FileRow({
             event.stopPropagation();
             selectRow(node, index, { metaKey: true }, items, paneId);
           }}
-          className="rounded p-1 transition-colors hover:bg-secondary/60"
+          className="rounded p-0.5 transition-colors hover:bg-black/5"
           aria-label={isSelected ? `Deselect ${node.name}` : `Select ${node.name}`}
           aria-pressed={isSelected}
         >
           {isSelected ? (
-            <Check className="h-4 w-4 text-primary" />
+            <Check className="h-3.5 w-3.5 text-primary" />
           ) : (
-            <Square className="h-4 w-4 text-muted-foreground" />
+            <Square className="h-3.5 w-3.5 text-muted-foreground/50" />
           )}
         </button>
       </div>
 
-      <div className="col-span-6 flex items-center gap-3 overflow-hidden md:col-span-5">
-        <div
-          className={cn(
-            "rounded-lg p-2",
-            node.type === "folder"
-              ? "bg-primary/10 text-primary"
-              : "bg-muted text-muted-foreground",
-          )}
-        >
-          {node.type === "folder" ? (
-            <Folder className="h-5 w-5" />
-          ) : (
-            <FileIcon className="h-5 w-5" />
-          )}
-        </div>
-        <span className={cn("truncate font-medium", node.type === "file" && "font-mono text-sm")}>
-          {node.name}
-        </span>
+      <div className="col-span-6 flex items-center gap-2 overflow-hidden md:col-span-5">
+        <NodeIcon node={node} />
+        <span className="truncate text-[13px]">{node.name}</span>
+        {isRequired && (
+          <span
+            className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800"
+            title="Required files cannot be deleted or moved out of this folder"
+          >
+            <Lock className="h-2.5 w-2.5" />
+            Required
+          </span>
+        )}
       </div>
 
-      <div className="col-span-2 hidden truncate text-sm text-muted-foreground md:block">
+      <div className="col-span-2 hidden truncate text-[12px] text-muted-foreground md:block">
         {node.updatedAt}
       </div>
 
-      <div className="col-span-2 hidden text-sm text-muted-foreground md:block">
+      <div className="col-span-2 hidden text-[12px] text-muted-foreground tabular-nums md:block">
         {node.size ?? "--"}
       </div>
 
@@ -148,13 +153,13 @@ export function FileRow({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+              className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
               aria-label={`Actions for ${node.name}`}
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-52">
             {node.type === "folder" && (
               <DropdownMenuItem onClick={() => openFolder(paneId, node.id)}>
                 <FolderInput className="mr-2 h-4 w-4 text-muted-foreground" /> Open
@@ -163,9 +168,22 @@ export function FileRow({
             <DropdownMenuItem onClick={() => openDialog({ kind: "rename", node })}>
               <Pencil className="mr-2 h-4 w-4 text-muted-foreground" /> Rename
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={requestMove}>
+            <DropdownMenuItem disabled={isRequired} onClick={requestMove}>
               <ChevronRight className="mr-2 h-4 w-4 text-muted-foreground" /> Move to...{suffix}
             </DropdownMenuItem>
+            {node.type === "file" && (
+              <DropdownMenuItem onClick={() => setMandatory(node.id, !isRequired)}>
+                {isRequired ? (
+                  <>
+                    <ShieldOff className="mr-2 h-4 w-4 text-muted-foreground" /> Remove requirement
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4 text-muted-foreground" /> Mark as required
+                  </>
+                )}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled={!canMoveUp} onClick={() => reorder(node.id, index - 1)}>
               <ArrowUp className="mr-2 h-4 w-4 text-muted-foreground" /> Move up
@@ -176,6 +194,7 @@ export function FileRow({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+              disabled={cannotDelete}
               onClick={() => deleteNodes(effectiveIds(node.id))}
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete{suffix}

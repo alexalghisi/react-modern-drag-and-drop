@@ -20,26 +20,26 @@ export function FileList({ items, paneId }: FileListProps) {
 
   return (
     <>
-      <div className="grid grid-cols-12 gap-4 border-b px-4 pb-2 text-xs font-medium text-muted-foreground">
+      <div className="grid grid-cols-12 gap-3 border-b border-black/5 px-3 pb-1.5 text-[11px] font-medium tracking-wide text-muted-foreground">
         <div className="col-span-1 flex items-center">
           <button
             type="button"
             onClick={() => selectAll(!allSelected, items)}
-            className="rounded p-1 transition-colors hover:bg-secondary/60"
+            className="rounded p-0.5 transition-colors hover:bg-black/5"
             aria-label={allSelected ? "Deselect all" : "Select all"}
             aria-pressed={allSelected}
           >
             {allSelected ? (
-              <Check className="h-4 w-4 text-primary" />
+              <Check className="h-3.5 w-3.5 text-primary" />
             ) : (
-              <Square className="h-4 w-4" />
+              <Square className="h-3.5 w-3.5" />
             )}
           </button>
         </div>
         <div className="col-span-6 md:col-span-5">Name</div>
-        <div className="col-span-2 hidden md:block">Modified</div>
+        <div className="col-span-2 hidden md:block">Date Modified</div>
         <div className="col-span-2 hidden md:block">Size</div>
-        <div className="col-span-5 text-right md:col-span-2">Actions</div>
+        <div className="col-span-5 text-right md:col-span-2" />
       </div>
 
       {items.length === 0 ? (
@@ -49,7 +49,7 @@ export function FileList({ items, paneId }: FileListProps) {
           items={items.map((item) => item.id)}
           strategy={verticalListSortingStrategy}
         >
-          <ul className="mt-2 flex flex-col">
+          <ul className="mt-1 flex flex-col">
             {items.map((node, index) => (
               <li key={node.id}>
                 <SortableFileRow

@@ -42,13 +42,13 @@ export function ExplorerPane({ pane, canClose }: ExplorerPaneProps) {
   };
 
   return (
-    <div className="flex min-w-0 flex-col">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-card">
       <PaneHeader pane={pane} canClose={canClose} />
       <div
         ref={setNodeRef}
         onClick={handleBackgroundClick}
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto p-4 transition-colors",
+          "min-h-0 flex-1 overflow-y-auto px-2 py-2 transition-colors",
           isPaneHighlighted && "bg-primary/5 ring-1 ring-inset ring-primary/20",
         )}
       >

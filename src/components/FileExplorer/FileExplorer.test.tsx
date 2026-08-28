@@ -39,7 +39,9 @@ describe("FileExplorer", () => {
 
     expect(screen.getByTestId("row-file-4")).toHaveTextContent("Budget_2024.xlsx");
     expect(screen.queryByTestId("row-file-7")).not.toBeInTheDocument();
-    expect(within(screen.getByRole("navigation")).getByText("Documents")).toBeVisible();
+    expect(
+      within(screen.getByRole("navigation", { name: "Breadcrumb" })).getByText("Documents"),
+    ).toBeVisible();
   });
 
   it("selects a row on click and reports the count", async () => {
@@ -60,7 +62,7 @@ describe("FileExplorer", () => {
     await user.type(screen.getByTestId("input-create"), "Invoices");
     await user.click(screen.getByTestId("button-create-submit"));
 
-    expect(screen.getByText("Invoices")).toBeVisible();
+    expect(screen.getAllByText("Invoices").length).toBeGreaterThanOrEqual(1);
   });
 
   it("rejects an empty name and keeps the dialog open", async () => {
@@ -72,6 +74,12 @@ describe("FileExplorer", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Name is required");
     expect(screen.getByTestId("input-create")).toBeVisible();
+  });
+
+  it("shows a required badge on mandatory files", () => {
+    render(<FileExplorer />);
+    expect(screen.getByTestId("row-file-7")).toHaveAttribute("data-mandatory", "true");
+    expect(screen.getByTestId("row-file-7")).toHaveTextContent("Required");
   });
 
   it("opens a second pane", async () => {

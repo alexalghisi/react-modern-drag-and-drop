@@ -185,3 +185,56 @@ export function nextOrder(nodes: FileNode[], parentId: string | null): number {
   if (siblings.length === 0) return 0;
   return Math.max(...siblings.map((node) => node.order)) + 1;
 }
+
+export function isMandatoryFile(node: FileNode | undefined): node is FileNode {
+  return node !== undefined && node.type === "file" && node.mandatory === true;
+}
+
+/** True when deleting `ids` would also remove a required file. */
+export function subtreeHasMandatory(nodes: FileNode[], ids: string[]): boolean {
+  const doomed = collectSubtreeIds(nodes, ids);
+  return nodes.some((node) => doomed.has(node.id) && isMandatoryFile(node));
+}
+
+export function partitionDeletable(
+  nodes: FileNode[],
+  ids: string[],
+): { allowed: string[]; blocked: string[] } {
+  const allowed: string[] = [];
+  const blocked: string[] = [];
+
+  for (const id of ids) {
+    if (subtreeHasMandatory(nodes, [id])) blocked.push(id);
+    else allowed.push(id);
+  }
+
+  return { allowed, blocked };
+}
+
+/**
+ * Required files may be reordered in place, but they cannot change parent.
+ * Folders that merely *contain* required files are still free to move.
+ */
+export function partitionMovable(
+  nodes: FileNode[],
+  ids: string[],
+  newParentId: string | null,
+): { allowed: string[]; blocked: string[] } {
+  const allowed: string[] = [];
+  const blocked: string[] = [];
+
+  for (const id of filterRedundantIds(nodes, ids)) {
+    const current = findNode(nodes, id);
+    if (isMandatoryFile(current) && current.parentId !== newParentId) blocked.push(id);
+    else allowed.push(id);
+  }
+
+  return { allowed, blocked };
+}
+
+export function setNodeMandatory(nodes: FileNode[], id: string, mandatory: boolean): FileNode[] {
+  return nodes.map((node) => {
+    if (node.id !== id || node.type !== "file") return node;
+    return { ...node, mandatory: mandatory || undefined };
+  });
+}
