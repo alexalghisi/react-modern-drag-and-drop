@@ -138,24 +138,45 @@ describe("submitRename", () => {
 
 describe("deleteNodes", () => {
   it("removes a folder together with its contents", () => {
-    store().deleteNodes(["1"]);
+    store().deleteNodes(["2"]);
     const remaining = new Set(idsOf(store().nodes));
-    for (const id of ["1", "3", "4", "6", "8", "9", "14"]) {
+    for (const id of ["2", "5", "15"]) {
       expect(remaining.has(id)).toBe(false);
     }
   });
 
   it("drops deleted ids from the selection", () => {
-    useExplorerStore.setState({ selectedIds: new Set(["7", "13"]) });
+    useExplorerStore.setState({ selectedIds: new Set(["13", "16"]) });
+    store().deleteNodes(["13"]);
+    expect([...store().selectedIds]).toEqual(["16"]);
+  });
+
+  it("refuses to delete a required file", () => {
+    const before = store().nodes.length;
     store().deleteNodes(["7"]);
-    expect([...store().selectedIds]).toEqual(["13"]);
+    expect(store().nodes).toHaveLength(before);
+    expect(store().nodes.find((item) => item.id === "7")).toBeDefined();
+    expect(toast.error).toHaveBeenCalled();
+  });
+
+  it("refuses to delete a folder that contains a required file", () => {
+    store().deleteNodes(["1"]);
+    expect(store().nodes.find((item) => item.id === "1")).toBeDefined();
+    expect(store().nodes.find((item) => item.id === "14")).toBeDefined();
+    expect(toast.error).toHaveBeenCalled();
+  });
+
+  it("deletes the rest of a mixed selection", () => {
+    store().deleteNodes(["7", "13"]);
+    expect(store().nodes.find((item) => item.id === "7")).toBeDefined();
+    expect(store().nodes.find((item) => item.id === "13")).toBeUndefined();
   });
 });
 
 describe("moveToFolder", () => {
   it("reparents the node", () => {
-    store().moveToFolder(["7"], "1");
-    expect(store().nodes.find((item) => item.id === "7")?.parentId).toBe("1");
+    store().moveToFolder(["13"], "1");
+    expect(store().nodes.find((item) => item.id === "13")?.parentId).toBe("1");
     expect(toast.success).toHaveBeenCalled();
   });
 
@@ -173,9 +194,15 @@ describe("moveToFolder", () => {
   });
 
   it("clears the moved ids from the selection", () => {
-    useExplorerStore.setState({ selectedIds: new Set(["7", "13"]) });
-    store().moveToFolder(["7", "13"], "1");
+    useExplorerStore.setState({ selectedIds: new Set(["13", "16"]) });
+    store().moveToFolder(["13", "16"], "1");
     expect(store().selectedIds.size).toBe(0);
+  });
+
+  it("refuses to move a required file out of its folder", () => {
+    store().moveToFolder(["7"], "1");
+    expect(store().nodes.find((item) => item.id === "7")?.parentId).toBeNull();
+    expect(toast.error).toHaveBeenCalledWith("Required files must stay in their folder");
   });
 });
 
@@ -189,12 +216,12 @@ describe("reorder", () => {
 
 describe("submitMove", () => {
   it("moves the dialog selection to the chosen folder", () => {
-    const primary = store().nodes.find((item) => item.id === "7")!;
-    store().openDialog({ kind: "move", nodeIds: ["7"], primary });
+    const primary = store().nodes.find((item) => item.id === "13")!;
+    store().openDialog({ kind: "move", nodeIds: ["13"], primary });
     store().setMoveDestination("10");
     store().submitMove();
 
-    expect(store().nodes.find((item) => item.id === "7")?.parentId).toBe("10");
+    expect(store().nodes.find((item) => item.id === "13")?.parentId).toBe("10");
     expect(store().dialog).toBeNull();
   });
 
@@ -205,6 +232,18 @@ describe("submitMove", () => {
     store().submitMove();
 
     expect(store().nodes.find((item) => item.id === "4")?.parentId).toBeNull();
+  });
+});
+
+describe("setMandatory", () => {
+  it("marks a file as required", () => {
+    store().setMandatory("13", true);
+    expect(store().nodes.find((item) => item.id === "13")?.mandatory).toBe(true);
+  });
+
+  it("ignores folders", () => {
+    store().setMandatory("1", true);
+    expect(store().nodes.find((item) => item.id === "1")?.mandatory).toBeUndefined();
   });
 });
 

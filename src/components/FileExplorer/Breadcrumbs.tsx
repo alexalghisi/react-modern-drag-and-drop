@@ -35,10 +35,10 @@ function CrumbButton({
       type="button"
       onClick={() => onNavigate(folderId)}
       className={cn(
-        "flex shrink-0 items-center whitespace-nowrap rounded-md px-2.5 py-1.5 transition-colors",
+        "flex shrink-0 items-center whitespace-nowrap rounded-md px-2 py-1 text-[12px] transition-colors",
         isCurrent
-          ? "border bg-background font-medium text-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+          ? "bg-white font-medium text-foreground shadow-sm ring-1 ring-black/10"
+          : "text-muted-foreground hover:bg-black/5 hover:text-foreground",
         isOver && "bg-primary/10 ring-2 ring-primary/50",
       )}
       aria-current={isCurrent ? "location" : undefined}

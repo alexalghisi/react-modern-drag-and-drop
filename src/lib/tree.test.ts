@@ -2,13 +2,19 @@ import { describe, expect, it } from "vitest";
 import {
   collectSubtreeIds,
   filterRedundantIds,
+  findNode,
   getBreadcrumbs,
   getChildren,
   isDescendantOf,
+  isMandatoryFile,
   moveNodes,
   nextOrder,
+  partitionDeletable,
+  partitionMovable,
   removeNodes,
   reorderWithinFolder,
+  setNodeMandatory,
+  subtreeHasMandatory,
   wouldCreateCycle,
 } from "./tree";
 import type { FileNode } from "@/types";
@@ -186,6 +192,54 @@ describe("removeNodes", () => {
       "budget",
       "deep",
     ]);
+  });
+});
+
+describe("mandatory files", () => {
+  const withRequired: FileNode[] = [
+    ...tree,
+    node({ id: "readme", name: "README.md", order: 2, mandatory: true }),
+  ];
+
+  it("detects a required file", () => {
+    expect(isMandatoryFile(findNode(withRequired, "readme"))).toBe(true);
+    expect(isMandatoryFile(findNode(withRequired, "notes"))).toBe(false);
+    expect(isMandatoryFile(findNode(withRequired, "docs"))).toBe(false);
+  });
+
+  it("blocks deleting a required file or a folder that contains one", () => {
+    expect(partitionDeletable(withRequired, ["readme"]).blocked).toEqual(["readme"]);
+    expect(partitionDeletable(withRequired, ["notes"]).allowed).toEqual(["notes"]);
+    expect(subtreeHasMandatory(withRequired, ["docs"])).toBe(false);
+
+    const nested = [
+      node({ id: "docs", name: "docs", type: "folder", order: 0 }),
+      node({ id: "contract", name: "contract.pdf", parentId: "docs", order: 0, mandatory: true }),
+    ];
+    expect(subtreeHasMandatory(nested, ["docs"])).toBe(true);
+    expect(partitionDeletable(nested, ["docs"]).blocked).toEqual(["docs"]);
+  });
+
+  it("keeps a required file in its parent while allowing sibling moves", () => {
+    expect(partitionMovable(withRequired, ["readme"], "docs").blocked).toEqual(["readme"]);
+    expect(partitionMovable(withRequired, ["readme"], null).allowed).toEqual(["readme"]);
+    expect(partitionMovable(withRequired, ["notes"], "docs").allowed).toEqual(["notes"]);
+  });
+
+  it("lets a folder that contains required files still move", () => {
+    const nested = [
+      node({ id: "docs", name: "docs", type: "folder", order: 0 }),
+      node({ id: "contract", name: "contract.pdf", parentId: "docs", order: 0, mandatory: true }),
+    ];
+    expect(partitionMovable(nested, ["docs"], null).allowed).toEqual(["docs"]);
+  });
+
+  it("toggles the required flag on files only", () => {
+    const next = setNodeMandatory(withRequired, "notes", true);
+    expect(findNode(next, "notes")?.mandatory).toBe(true);
+    expect(
+      findNode(setNodeMandatory(withRequired, "docs", true), "docs")?.mandatory,
+    ).toBeUndefined();
   });
 });
 

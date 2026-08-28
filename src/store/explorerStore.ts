@@ -6,9 +6,12 @@ import {
   getChildren,
   moveNodes,
   nextOrder,
+  partitionDeletable,
+  partitionMovable,
   removeNodes,
   renameNode,
   reorderWithinFolder,
+  setNodeMandatory,
   wouldCreateCycle,
 } from "@/lib/tree";
 import type { DropTarget, FileNode, NodeType, Pane, ReorderTarget } from "@/types";
@@ -74,6 +77,7 @@ interface ExplorerState {
   moveToFolder: (ids: string[], targetFolderId: string | null) => void;
   reorder: (draggedId: string, targetIndex: number) => void;
   submitMove: () => void;
+  setMandatory: (id: string, mandatory: boolean) => void;
 
   openFolder: (paneId: string, folderId: string | null) => void;
   addPane: () => void;
@@ -173,12 +177,26 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
   deleteNodes: (ids) => {
     if (ids.length === 0) return;
     const { nodes, selectedIds } = get();
+    const { allowed, blocked } = partitionDeletable(nodes, ids);
+
+    if (blocked.length > 0) {
+      const names = blocked
+        .map((id) => findNode(nodes, id)?.name)
+        .filter((name): name is string => name !== undefined);
+      toast.error(
+        names.length === 1
+          ? `"${names[0]}" is required and cannot be deleted`
+          : "Required files cannot be deleted",
+      );
+    }
+
+    if (allowed.length === 0) return;
 
     const next = new Set(selectedIds);
-    for (const id of ids) next.delete(id);
+    for (const id of allowed) next.delete(id);
 
-    set({ nodes: removeNodes(nodes, ids), selectedIds: next });
-    toast.success(ids.length > 1 ? `${ids.length} items deleted` : "Item deleted");
+    set({ nodes: removeNodes(nodes, allowed), selectedIds: next });
+    toast.success(allowed.length > 1 ? `${allowed.length} items deleted` : "Item deleted");
   },
 
   moveToFolder: (ids, targetFolderId) => {
@@ -192,14 +210,22 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
       return;
     }
 
-    const updated = moveNodes(nodes, ids, targetFolderId);
+    const { allowed, blocked } = partitionMovable(nodes, ids, targetFolderId);
+
+    if (blocked.length > 0) {
+      toast.error("Required files must stay in their folder");
+    }
+
+    if (allowed.length === 0) return;
+
+    const updated = moveNodes(nodes, allowed, targetFolderId);
     if (updated === nodes) return;
 
     const next = new Set(selectedIds);
-    for (const id of ids) next.delete(id);
+    for (const id of allowed) next.delete(id);
 
     set({ nodes: updated, selectedIds: next });
-    toast.success(ids.length > 1 ? `${ids.length} items moved` : "Item moved");
+    toast.success(allowed.length > 1 ? `${allowed.length} items moved` : "Item moved");
   },
 
   reorder: (draggedId, targetIndex) => {
@@ -215,6 +241,17 @@ export const useExplorerStore = create<ExplorerState>((set, get) => ({
 
     moveToFolder(dialog.nodeIds, moveDestination === "root" ? null : moveDestination);
     set({ dialog: null });
+  },
+
+  setMandatory: (id, mandatory) => {
+    const { nodes } = get();
+    const node = findNode(nodes, id);
+    if (node === undefined || node.type !== "file") return;
+
+    set({ nodes: setNodeMandatory(nodes, id, mandatory) });
+    toast.success(
+      mandatory ? `Marked "${node.name}" as required` : `Removed requirement from "${node.name}"`,
+    );
   },
 
   openFolder: (paneId, folderId) =>

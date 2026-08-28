@@ -78,7 +78,7 @@ test("reorders siblings with the keyboard alone", async ({ page }) => {
   await page.keyboard.press("ArrowDown");
   // dnd-kit remeasures on the next animation frame, so the drop has to wait for
   // the move to be applied rather than following immediately.
-  await expect(page.getByTestId("row-file-13")).toHaveClass(/ring-primary/);
+  await expect(page.getByTestId("row-file-13")).toHaveAttribute("data-reorder-target", "true");
 
   await page.keyboard.press("Space");
   await expect(overlay).toHaveCount(0);
@@ -94,12 +94,12 @@ test("reorders siblings with the keyboard alone", async ({ page }) => {
 });
 
 test("moves a file into a folder by dropping it on the row", async ({ page }) => {
-  await dragOnto(page, page.getByTestId("row-file-7"), page.getByTestId("row-folder-1"));
+  await dragOnto(page, page.getByTestId("row-file-13"), page.getByTestId("row-folder-1"));
 
-  await expect(page.getByTestId("row-file-7")).toHaveCount(0);
+  await expect(page.getByTestId("row-file-13")).toHaveCount(0);
 
   await page.getByTestId("row-folder-1").dblclick();
-  await expect(page.getByTestId("row-file-7")).toBeVisible();
+  await expect(page.getByTestId("row-file-13")).toBeVisible();
 });
 
 test("moves a file back to the root by dropping it on a breadcrumb", async ({ page }) => {
@@ -130,15 +130,22 @@ test("never offers a folder's own subtree as a move destination", async ({ page 
 });
 
 test("drags a multi-row selection in one gesture", async ({ page }) => {
-  await page.getByTestId("row-file-7").click();
-  await page.getByTestId("row-file-13").click({ modifiers: ["Meta"] });
+  await page.getByTestId("row-file-13").click();
+  await page.getByTestId("row-file-16").click({ modifiers: ["Meta"] });
 
-  await dragOnto(page, page.getByTestId("row-file-7"), page.getByTestId("row-folder-2"));
+  await dragOnto(page, page.getByTestId("row-file-13"), page.getByTestId("row-folder-2"));
 
-  await expect(page.getByTestId("row-file-7")).toHaveCount(0);
   await expect(page.getByTestId("row-file-13")).toHaveCount(0);
+  await expect(page.getByTestId("row-file-16")).toHaveCount(0);
 
   await page.getByTestId("row-folder-2").dblclick();
-  await expect(page.getByTestId("row-file-7")).toBeVisible();
   await expect(page.getByTestId("row-file-13")).toBeVisible();
+  await expect(page.getByTestId("row-file-16")).toBeVisible();
+});
+
+test("keeps a required file in its folder", async ({ page }) => {
+  await dragOnto(page, page.getByTestId("row-file-7"), page.getByTestId("row-folder-1"));
+
+  await expect(page.getByTestId("row-file-7")).toBeVisible();
+  await expect(page.getByTestId("row-file-7")).toHaveAttribute("data-mandatory", "true");
 });

@@ -17,13 +17,14 @@ import {
   type ScreenReaderInstructions,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { File as FileIcon, Folder, PanelRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ExplorerPane } from "./ExplorerPane";
 import { ExplorerDialogs } from "./ExplorerDialogs";
+import { NodeIcon } from "./NodeIcon";
+import { WindowToolbar } from "./PaneHeader";
+import { Sidebar } from "./Sidebar";
 import { asDropData } from "./dnd";
+import { findNode, getChildren, isMandatoryFile, partitionMovable } from "@/lib/tree";
 import { useExplorerStore } from "@/store/explorerStore";
-import { findNode, getChildren } from "@/lib/tree";
 
 const screenReaderInstructions: ScreenReaderInstructions = {
   draggable:
@@ -42,7 +43,6 @@ export function FileExplorer() {
   const moveToFolder = useExplorerStore((state) => state.moveToFolder);
   const reorder = useExplorerStore((state) => state.reorder);
   const effectiveIds = useExplorerStore((state) => state.effectiveIds);
-  const addPane = useExplorerStore((state) => state.addPane);
 
   const sensors = useSensors(
     // The 8px threshold keeps plain clicks (select, open menus) working while
@@ -53,6 +53,7 @@ export function FileExplorer() {
 
   const draggedNode = draggedId === null ? undefined : findNode(nodes, draggedId);
   const draggedCount = draggedId === null ? 0 : effectiveIds(draggedId).length;
+  const requiredCount = nodes.filter(isMandatoryFile).length;
 
   const resetDragState = () => {
     setDraggedId(null);
@@ -78,6 +79,12 @@ export function FileExplorer() {
     const target = data.node;
 
     if (target.type === "folder" && !dragged.includes(target.id)) {
+      const { allowed } = partitionMovable(nodes, dragged, target.id);
+      if (allowed.length === 0) {
+        setDropTarget(null);
+        setReorderTarget(null);
+        return;
+      }
       setDropTarget({ paneId: data.paneId, nodeId: target.id });
       setReorderTarget(null);
       return;
@@ -158,68 +165,75 @@ export function FileExplorer() {
     [nodes],
   );
 
+  const firstPaneId = panes[0]?.id;
+
   return (
-    <div className="flex h-full flex-col bg-card">
-      <div className="flex items-center justify-end border-b bg-muted/20 p-2">
-        <Button variant="outline" size="sm" onClick={addPane} data-testid="button-add-pane">
-          <PanelRight className="mr-2 h-4 w-4" />
-          Open pane
-        </Button>
+    <div className="flex h-full min-h-0 flex-col bg-card">
+      <WindowToolbar />
+
+      <div className="flex min-h-0 flex-1">
+        {firstPaneId !== undefined && <Sidebar paneId={firstPaneId} />}
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          accessibility={{ announcements, screenReaderInstructions }}
+          measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={resetDragState}
+        >
+          <PanelGroup direction="horizontal" className="min-h-0 flex-1" autoSaveId="explorer-panes">
+            {panes.map((pane, index) => (
+              <Fragment key={pane.id}>
+                {index > 0 && (
+                  <PanelResizeHandle className="w-1.5 bg-border/80 transition-colors hover:bg-primary/30 data-[resize-handle-active]:bg-primary/40" />
+                )}
+                <Panel
+                  defaultSize={100 / panes.length}
+                  minSize={20}
+                  className="flex min-w-0 flex-col"
+                >
+                  <ExplorerPane pane={pane} canClose={panes.length > 1} />
+                </Panel>
+              </Fragment>
+            ))}
+          </PanelGroup>
+
+          {/* Portalled to the body: the panes scroll and clip their overflow, and
+              a preview rendered inside one of them can be cut off. */}
+          {createPortal(
+            <DragOverlay dropAnimation={null}>
+              {draggedNode === undefined ? null : (
+                <div
+                  data-testid="drag-overlay"
+                  className="flex items-center gap-2 rounded-lg border border-black/10 bg-white/95 px-3 py-2 shadow-xl backdrop-blur-sm"
+                >
+                  <NodeIcon node={draggedNode} />
+                  <span className="max-w-52 truncate text-[13px] font-medium">
+                    {draggedNode.name}
+                  </span>
+                  {draggedCount > 1 && (
+                    <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] text-primary-foreground">
+                      {draggedCount}
+                    </span>
+                  )}
+                </div>
+              )}
+            </DragOverlay>,
+            document.body,
+          )}
+        </DndContext>
       </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        accessibility={{ announcements, screenReaderInstructions }}
-        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={resetDragState}
-      >
-        <PanelGroup direction="horizontal" className="min-h-0 flex-1" autoSaveId="explorer-panes">
-          {panes.map((pane, index) => (
-            <Fragment key={pane.id}>
-              {index > 0 && (
-                <PanelResizeHandle className="w-2 bg-border transition-colors hover:bg-primary/20 data-[resize-handle-active]:bg-primary/30" />
-              )}
-              <Panel
-                defaultSize={100 / panes.length}
-                minSize={20}
-                className="flex min-w-0 flex-col"
-              >
-                <ExplorerPane pane={pane} canClose={panes.length > 1} />
-              </Panel>
-            </Fragment>
-          ))}
-        </PanelGroup>
-
-        {/* Portalled to the body: the panes scroll and clip their overflow, and
-            a preview rendered inside one of them can be cut off. */}
-        {createPortal(
-          <DragOverlay dropAnimation={null}>
-            {draggedNode === undefined ? null : (
-              <div
-                data-testid="drag-overlay"
-                className="flex items-center gap-2 rounded-xl border bg-background px-4 py-3 shadow-lg"
-              >
-                {draggedNode.type === "folder" ? (
-                  <Folder className="h-5 w-5 text-primary" />
-                ) : (
-                  <FileIcon className="h-5 w-5 text-muted-foreground" />
-                )}
-                <span className="max-w-56 truncate text-sm font-medium">{draggedNode.name}</span>
-                {draggedCount > 1 && (
-                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                    {draggedCount}
-                  </span>
-                )}
-              </div>
-            )}
-          </DragOverlay>,
-          document.body,
-        )}
-      </DndContext>
+      <footer className="flex shrink-0 items-center justify-between border-t border-black/5 bg-titlebar px-3 py-1 text-[11px] text-muted-foreground">
+        <span>
+          {nodes.length} items
+          {requiredCount > 0 ? ` · ${String(requiredCount)} required` : ""}
+        </span>
+        <span>Drag to reorder · Drop on a folder to move · Required files stay put</span>
+      </footer>
 
       <ExplorerDialogs />
 

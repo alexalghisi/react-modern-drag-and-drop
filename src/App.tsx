@@ -3,19 +3,13 @@ import { FileExplorer } from "@/components/FileExplorer";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen justify-center bg-background p-4 md:p-8">
+    <div className="flex min-h-screen items-center justify-center bg-desktop p-4 md:p-10">
       <Toaster richColors position="bottom-right" />
-      <div className="w-full max-w-6xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Files</h1>
-          <p className="mt-1 text-muted-foreground">
-            Drag rows to reorder, drop them onto folders or breadcrumbs to move them.
-          </p>
-        </header>
-
-        <main className="flex h-[75vh] flex-col overflow-hidden rounded-2xl border bg-card shadow-sm">
-          <FileExplorer />
-        </main>
+      <div
+        data-testid="finder-window"
+        className="flex h-[min(780px,85vh)] w-full max-w-6xl flex-col overflow-hidden rounded-[12px] border border-black/10 bg-card shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+      >
+        <FileExplorer />
       </div>
     </div>
   );
