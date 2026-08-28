@@ -90,4 +90,24 @@ describe("FileExplorer", () => {
 
     expect(useExplorerStore.getState().panes).toHaveLength(2);
   });
+
+  it("deletes a selected file from the keyboard", async () => {
+    const user = userEvent.setup();
+    render(<FileExplorer />);
+
+    await user.click(screen.getByTestId("row-file-13"));
+    await user.keyboard("{Delete}");
+
+    expect(screen.queryByTestId("row-file-13")).not.toBeInTheDocument();
+  });
+
+  it("does not delete a required file from the keyboard", async () => {
+    const user = userEvent.setup();
+    render(<FileExplorer />);
+
+    await user.click(screen.getByTestId("row-file-7"));
+    await user.keyboard("{Delete}");
+
+    expect(screen.getByTestId("row-file-7")).toBeInTheDocument();
+  });
 });

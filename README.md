@@ -6,8 +6,7 @@ files, and keyboard support.
 **React 19 · TypeScript (strict) · Vite 8 · Tailwind CSS 4 · dnd-kit · Zustand ·
 Vitest · Playwright**
 
-![Dragging files between Finder-like panes, with a required README that stays
-put](docs/demo.gif)
+![Dragging files between Finder-like panes. Required README stays put.](docs/demo.gif)
 
 Drop a file onto a folder to move it. Required files stay in their folder.
 Open a second pane and drag across.
@@ -80,18 +79,18 @@ prove them with tests.
 
 ## Features
 
-| Feature                  | Notes                                                                    |
-| ------------------------ | ------------------------------------------------------------------------ |
-| Finder-like window       | Traffic lights, sidebar favorites, compact list rows                     |
-| Reorder within a folder  | Pointer or keyboard, with a live insertion line                          |
-| Move into a folder       | Drop onto a folder row, a breadcrumb, or an empty pane                   |
-| Multi-select drag        | Shift for ranges, Cmd/Ctrl to toggle; the selection travels together     |
-| Required files           | Cannot be deleted or moved out of their folder; toggle from the row menu |
-| Cycle protection         | Illegal destinations are rejected, and never offered in the move dialog  |
-| Dual panes               | Resizable, independently navigable, drag between them                    |
-| Keyboard support         | Space to lift, arrows to move, Space to drop, Escape to cancel           |
-| Screen reader support    | Live announcements for lift, hover, drop and cancel                      |
-| Create / rename / delete | Validated with React Hook Form and Zod                                   |
+| Feature                  | Notes                                                                            |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| Finder-like window       | Traffic lights, sidebar favorites, compact list rows                             |
+| Reorder within a folder  | Pointer or keyboard, with a live insertion line                                  |
+| Move into a folder       | Drop onto a folder row, a breadcrumb, or an empty pane                           |
+| Multi-select drag        | Shift for ranges, Cmd/Ctrl to toggle; the selection travels together             |
+| Required files           | Cannot be deleted or moved out of their folder; toggle from the row menu         |
+| Cycle protection         | Illegal destinations are rejected, and never offered in the move dialog          |
+| Dual panes               | Resizable, independently navigable, drag between them                            |
+| Keyboard support         | Space to lift, arrows to move, Space to drop, Escape to cancel, Delete to remove |
+| Screen reader support    | Live announcements for lift, hover, drop and cancel                              |
+| Create / rename / delete | Validated with React Hook Form and Zod                                           |
 
 ## What this demonstrates to a hiring manager
 

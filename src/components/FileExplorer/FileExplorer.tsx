@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import {
@@ -42,7 +42,9 @@ export function FileExplorer() {
   const setReorderTarget = useExplorerStore((state) => state.setReorderTarget);
   const moveToFolder = useExplorerStore((state) => state.moveToFolder);
   const reorder = useExplorerStore((state) => state.reorder);
+  const deleteNodes = useExplorerStore((state) => state.deleteNodes);
   const effectiveIds = useExplorerStore((state) => state.effectiveIds);
+  const dialog = useExplorerStore((state) => state.dialog);
 
   const sensors = useSensors(
     // The 8px threshold keeps plain clicks (select, open menus) working while
@@ -54,6 +56,23 @@ export function FileExplorer() {
   const draggedNode = draggedId === null ? undefined : findNode(nodes, draggedId);
   const draggedCount = draggedId === null ? 0 : effectiveIds(draggedId).length;
   const requiredCount = nodes.filter(isMandatoryFile).length;
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Backspace" && event.key !== "Delete") return;
+      if (dialog !== null || draggedId !== null || selectedIds.size === 0) return;
+      if (event.target instanceof HTMLElement) {
+        const tag = event.target.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || event.target.isContentEditable) return;
+      }
+
+      event.preventDefault();
+      deleteNodes([...selectedIds]);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [deleteNodes, dialog, draggedId, selectedIds]);
 
   const resetDragState = () => {
     setDraggedId(null);
