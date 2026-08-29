@@ -1,7 +1,10 @@
 # React Modern Drag and Drop
 
-Finder-like dual-pane file explorer with accessible drag and drop, required
-files, and keyboard support.
+A Finder-like dual-pane explorer: accessible pointer and keyboard move, folder
+invariants, and required files that cannot leave their parent.
+
+The hard problems are not the animations. They are the rules — and those rules
+are pure functions in [`src/lib/tree.ts`](src/lib/tree.ts).
 
 **React 19 · TypeScript (strict) · Vite 8 · Tailwind CSS 4 · dnd-kit · Zustand ·
 Vitest · Playwright**
@@ -44,13 +47,13 @@ Italian, Romanian**.
 | -------- | --------------------------------------------------------------------------------------- |
 | GitHub   | [github.com/alexalghisi](https://github.com/alexalghisi)                                |
 | LinkedIn | [linkedin.com/in/alghisi](https://www.linkedin.com/in/alghisi)                          |
-| Email    | [alessandro@onlineparentingprograms.com](mailto:alessandro@onlineparentingprograms.com) |
+| Email    | [alexalghisi@gmail.com](mailto:alexalghisi@gmail.com)                                   |
 | Location | Cluj-Napoca, Romania · open to remote / EU / US-friendly timezones                      |
 
 **Hiring?** If you need a senior engineer who can own a React/TypeScript
 surface end-to-end, reason about edge cases, write tests that catch real bugs,
 and ship with CI — open an issue here, message me on LinkedIn, or email
-[alessandro@onlineparentingprograms.com](mailto:alessandro@onlineparentingprograms.com).
+[alexalghisi@gmail.com](mailto:alexalghisi@gmail.com).
 I am actively open to strong full-time and contract opportunities.
 
 ---

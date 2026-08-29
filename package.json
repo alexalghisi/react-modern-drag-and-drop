@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Dual-pane file explorer with accessible drag & drop built on dnd-kit, React 19 and TypeScript",
+  "description": "Accessible dual-pane explorer: tree invariants, required files, and keyboard parity isolated in pure functions.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
