@@ -1,6 +1,6 @@
 /** Public hiring contact — shown in the app chrome and the README. */
 export const AUTHOR = {
-  name: "Alghisi Alessandro Paolo",
+  name: "Alessandro Alghisi",
   title: "Senior Software Engineer",
   location: "Cluj-Napoca, Romania",
   github: "https://github.com/alexalghisi",
