@@ -17,7 +17,7 @@ Open a second pane and drag across.
 
 ## Author
 
-### Alghisi Alessandro Paolo
+### Alessandro Alghisi
 
 Senior Software Engineer · Cluj-Napoca, Romania
 
@@ -216,4 +216,4 @@ wait for its effect to land instead of firing three keys back to back.
 
 ## License
 
-MIT · © Alghisi Alessandro Paolo
+MIT · © Alessandro Alghisi
