@@ -43,12 +43,12 @@ Also: Bronze medalist at the **National Olympiad in Informatics** (2013 &
 Engineering (Technical University of Cluj-Napoca). Fluent in **English,
 Italian, Romanian**.
 
-|          |                                                                                         |
-| -------- | --------------------------------------------------------------------------------------- |
-| GitHub   | [github.com/alexalghisi](https://github.com/alexalghisi)                                |
-| LinkedIn | [linkedin.com/in/alghisi](https://www.linkedin.com/in/alghisi)                          |
-| Email    | [alexalghisi@gmail.com](mailto:alexalghisi@gmail.com)                                   |
-| Location | Cluj-Napoca, Romania · open to remote / EU / US-friendly timezones                      |
+|          |                                                                    |
+| -------- | ------------------------------------------------------------------ |
+| GitHub   | [github.com/alexalghisi](https://github.com/alexalghisi)           |
+| LinkedIn | [linkedin.com/in/alghisi](https://www.linkedin.com/in/alghisi)     |
+| Email    | [alexalghisi@gmail.com](mailto:alexalghisi@gmail.com)              |
+| Location | Cluj-Napoca, Romania · open to remote / EU / US-friendly timezones |
 
 **Hiring?** If you need a senior engineer who can own a React/TypeScript
 surface end-to-end, reason about edge cases, write tests that catch real bugs,
