@@ -31,7 +31,7 @@ into Chromium
 At Logs I built an automated release-safety system for Big Data policy
 validation in C++ and Python, wired into Google’s release pipeline.
 
-I have **8+ years** building production web platforms used by millions of
+I have **12+ years** building production web platforms used by millions of
 people — including large real-estate products such as **Bayut.com** and
 **Zameen.com** at Sector Labs — plus roles at **Hewlett Packard Enterprise**
 (LoadRunner / C++), **Complaion** (React + FastAPI, cloud file integrations,
