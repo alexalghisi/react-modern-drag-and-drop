@@ -29,9 +29,9 @@ test and impossible to accidentally couple to the UI.
 
 Key operations:
 
-- `getChildren` / `compareNodes` — the single ordering rule (folders first,
-  then explicit `order`, then name). The rendered order and the persisted
-  `order` field are guaranteed to agree because both flow through here.
+- `getChildren` / `compareNodes` — the single ordering rule (explicit `order`,
+  then folders before files on a tie, then name). The rendered order and the
+  persisted `order` field agree because both flow through here.
 - `moveNodes` — reparents a selection, densely renumbering `order`. Delegates
   cycle detection and redundant-id filtering so a folder is never dropped into
   its own subtree and a moved folder never double-applies its children.
@@ -75,8 +75,8 @@ and covered by the unit suite.
    `partitionDeletable`, `subtreeHasMandatory`). Folders that merely _contain_
    required files remain free to move.
 5. **Traversal is cycle-safe.** Even against malformed data, upward walks
-   (`getBreadcrumbs`, `isDescendantOf`) are guarded by a visited set so a
-   corrupt parent pointer can never hang the render.
+   (`getBreadcrumbs`, `isDescendantOf`, `filterRedundantIds`) are guarded by a
+   visited set so a corrupt parent pointer can never hang the render.
 
 ## Why this shape
 
