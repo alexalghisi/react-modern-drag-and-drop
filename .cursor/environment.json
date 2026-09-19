@@ -1,0 +1,10 @@
+{
+  "name": "react-modern-drag-and-drop",
+  "install": "npm ci && npx playwright install --with-deps chromium",
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "npm run dev"
+    }
+  ]
+}
