@@ -9,6 +9,19 @@ are pure functions in [`src/lib/tree.ts`](src/lib/tree.ts).
 **React 19 · TypeScript (strict) · Vite 8 · Tailwind CSS 4 · dnd-kit · Zustand ·
 Vitest · Playwright**
 
+## Run it
+
+The recording further down is the production build, not a mock.
+
+- **Live:** [alexalghisi.github.io/react-modern-drag-and-drop](https://alexalghisi.github.io/react-modern-drag-and-drop/)
+- **Download:** [files-explorer-1.0.0.zip](https://github.com/alexalghisi/react-modern-drag-and-drop/releases/download/v1.0.0/files-explorer-1.0.0.zip).
+  Unzip it and, inside that folder, run `npx serve .` (Node 22+). The page
+  is a module script, so opening `index.html` from a `file://` tab will not
+  start it. `npx serve .` will.
+
+From a clone, `npm install` then `npm run dev` (http://localhost:5173).
+`npm run build && npm run preview` serves the same bundle as the download.
+
 ![Dragging files between Finder-like panes. Required README stays put.](docs/demo.gif)
 
 Drop a file onto a folder to move it. Required files stay in their folder.
