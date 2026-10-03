@@ -13,5 +13,4 @@ playwright/.cache
 .idea
 .vscode/*
 !.vscode/extensions.json
-.cursor
 *.log
